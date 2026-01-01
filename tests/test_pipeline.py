@@ -12,13 +12,13 @@ class TestEndToEndSuccess:
     """Test suite for end-to-end pipeline execution."""
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_pipeline_runs_without_errors(self, mock_validate, mock_load):
         """Test that pipeline runs without errors."""
         # Mock dataset
         mock_df = pd.DataFrame({
-            'text': ['complaint one', 'complaint two', 'complaint three', 'complaint four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -28,12 +28,12 @@ class TestEndToEndSuccess:
         assert result is not None
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_pipeline_returns_dictionary(self, mock_validate, mock_load):
         """Test that pipeline returns a dictionary."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -43,12 +43,12 @@ class TestEndToEndSuccess:
         assert isinstance(result, dict)
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_pipeline_contains_model_key(self, mock_validate, mock_load):
         """Test that output contains 'model' key."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -58,12 +58,12 @@ class TestEndToEndSuccess:
         assert "model" in result
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_pipeline_contains_metrics_key(self, mock_validate, mock_load):
         """Test that output contains 'metrics' key."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -77,12 +77,12 @@ class TestMetricsIntegrity:
     """Test suite for metrics integrity."""
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_metrics_contains_accuracy(self, mock_validate, mock_load):
         """Test that metrics dict contains 'accuracy'."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -92,12 +92,12 @@ class TestMetricsIntegrity:
         assert "accuracy" in result["metrics"]
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_metrics_contains_precision(self, mock_validate, mock_load):
         """Test that metrics dict contains 'precision'."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -107,12 +107,12 @@ class TestMetricsIntegrity:
         assert "precision" in result["metrics"]
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_metrics_contains_recall(self, mock_validate, mock_load):
         """Test that metrics dict contains 'recall'."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -122,12 +122,12 @@ class TestMetricsIntegrity:
         assert "recall" in result["metrics"]
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_metrics_contains_f1(self, mock_validate, mock_load):
         """Test that metrics dict contains 'f1'."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -137,12 +137,12 @@ class TestMetricsIntegrity:
         assert "f1" in result["metrics"]
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_metric_values_are_floats(self, mock_validate, mock_load):
         """Test that all metric values are floats."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -153,12 +153,12 @@ class TestMetricsIntegrity:
             assert isinstance(metric_value, (float, np.floating))
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_metric_values_in_valid_range(self, mock_validate, mock_load):
         """Test that all metric values are in [0, 1]."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -173,12 +173,12 @@ class TestDeterminism:
     """Test suite for deterministic behavior."""
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_same_inputs_same_metrics(self, mock_validate, mock_load):
         """Test that running pipeline twice with same inputs yields identical metrics."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four', 'text five', 'text six'],
-            'label': [0, 1, 0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -189,12 +189,12 @@ class TestDeterminism:
         assert result1["metrics"] == result2["metrics"]
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_deterministic_with_same_random_state(self, mock_validate, mock_load):
         """Test that same random_state produces deterministic results."""
         mock_df = pd.DataFrame({
-            'text': ['text ' + str(i) for i in range(20)],
-            'label': [i % 2 for i in range(20)]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -211,12 +211,12 @@ class TestDependencyWiring:
     """Test suite for dependency wiring."""
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_dataset_loader_is_called(self, mock_validate, mock_load):
         """Test that dataset loader is called."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -226,12 +226,12 @@ class TestDependencyWiring:
         mock_load.assert_called_once()
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_validation_is_called(self, mock_validate, mock_load):
         """Test that validation is called."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -241,19 +241,21 @@ class TestDependencyWiring:
         mock_validate.assert_called_once()
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     @patch('src.pipeline.split_dataset')
     def test_train_test_split_is_called(self, mock_split, mock_validate, mock_load):
         """Test that train/test split is called."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
         mock_split.return_value = (
-            pd.DataFrame({'text': ['text one', 'text two'], 'label': [0, 1]}),
-            pd.DataFrame({'text': ['text three', 'text four'], 'label': [0, 1]})
+            pd.DataFrame({'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]}),
+            pd.DataFrame({'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]})
         )
         
         run_pipeline()
@@ -261,13 +263,13 @@ class TestDependencyWiring:
         mock_split.assert_called_once()
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     @patch('src.pipeline.fit_vectorizer')
     def test_vectorizer_fit_called_once(self, mock_fit_vec, mock_validate, mock_load):
         """Test that vectorizer fit is called once (on train data only)."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -280,13 +282,13 @@ class TestDependencyWiring:
         mock_fit_vec.assert_called_once()
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     @patch('src.pipeline.train_model')
     def test_model_training_invoked_once(self, mock_train, mock_validate, mock_load):
         """Test that model training is invoked once."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -298,13 +300,13 @@ class TestDependencyWiring:
         mock_train.assert_called_once()
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     @patch('src.pipeline.evaluate_model')
     def test_evaluation_invoked_once(self, mock_eval, mock_validate, mock_load):
         """Test that evaluation is invoked once."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
@@ -334,12 +336,12 @@ class TestInputValidation:
             run_pipeline(test_size=1.5)
 
     @patch('src.pipeline.load_complaint_dataset')
-    @patch('src.pipeline.validate_dataframe')
+    @patch('src.pipeline.validate_complaint_data')
     def test_accepts_valid_test_size(self, mock_validate, mock_load):
         """Test that pipeline accepts valid test_size values."""
         mock_df = pd.DataFrame({
-            'text': ['text one', 'text two', 'text three', 'text four'],
-            'label': [0, 1, 0, 1]
+            'complaint_text': ['text ' + str(i) for i in range(10)],
+            'label': [i % 2 for i in range(10)]
         })
         mock_load.return_value = mock_df
         mock_validate.return_value = None
