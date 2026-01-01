@@ -1,3 +1,10 @@
+"""
+Tests for BERT pipeline compatibility.
+"""
+import pytest
+import pandas as pd
+from unittest.mock import patch
+from src.pipeline import run_pipeline
 
 
 class TestBertPipelineCompatibility:

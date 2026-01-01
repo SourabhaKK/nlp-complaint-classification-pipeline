@@ -17,7 +17,8 @@ from src.evaluation import evaluate_model
 def run_pipeline(
     data_source: str = "huggingface",
     test_size: float = 0.2,
-    random_state: int = 42
+    random_state: int = 42,
+    model_type: str = "tfidf"
 ) -> dict:
     """
     Run end-to-end ML pipeline for complaint classification.
@@ -35,14 +36,14 @@ def run_pipeline(
     3. Validate labels (binary classification)
     4. Split into train/test sets (stratified)
     5. Preprocess text (lowercase, remove punctuation/digits)
-    6. Fit TF-IDF vectorizer on training data ONLY
-    7. Transform both train and test using fitted vectorizer
+    6. Fit TF-IDF vectorizer on training data ONLY (or tokenize for BERT)
+    7. Transform both train and test using fitted vectorizer (or tokenizer)
     8. Train baseline classifier on training data
     9. Generate predictions on test data
     10. Evaluate model performance
     
     Leakage Prevention:
-    - Vectorizer is fit ONLY on training text
+    - Vectorizer/Tokenizer is fit ONLY on training text
     - Test data never influences model training
     - Preprocessing is deterministic (no data-dependent operations)
     
@@ -50,6 +51,7 @@ def run_pipeline(
         data_source: Data source identifier (default: "huggingface")
         test_size: Proportion of data for test set (0 < test_size < 1)
         random_state: Random seed for reproducibility
+        model_type: Model type to use ("tfidf" or "bert", default: "tfidf")
         
     Returns:
         Dictionary containing:
@@ -82,30 +84,74 @@ def run_pipeline(
     train_texts = [preprocess_text(text) for text in train_df['complaint_text']]
     test_texts = [preprocess_text(text) for text in test_df['complaint_text']]
     
-    # Step 6: Fit TF-IDF on train only
-    vectorizer = fit_vectorizer(train_texts)
-    
-    # Step 7: Transform both train and test
-    X_train = transform_texts(vectorizer, train_texts)
-    X_test = transform_texts(vectorizer, test_texts)
-    
     # Extract labels
     y_train = train_df['label'].values
     y_test = test_df['label'].values
     
-    # Step 8: Train baseline model
-    model = train_model(X_train, y_train, random_state=random_state)
+    # Route to appropriate pipeline based on model_type
+    if model_type == "bert":
+        # BERT pipeline
+        from src.bert.tokenizer import BertTokenizer
+        from src.bert.model import BertClassifier
+        from src.bert.trainer import BertTrainer
+        from src.bert.predictor import BertPredictor
+        
+        # Step 6: Tokenize with BERT tokenizer
+        tokenizer = BertTokenizer(max_length=128)
+        train_tokens = tokenizer.tokenize_batch(train_texts)
+        test_tokens = tokenizer.tokenize_batch(test_texts)
+        
+        # Step 7: Initialize BERT model
+        bert_model = BertClassifier(num_labels=2)
+        
+        # Step 8: Train BERT model
+        trainer = BertTrainer(model=bert_model, random_state=random_state)
+        trained_model = trainer.train(
+            train_tokens["input_ids"],
+            train_tokens["attention_mask"],
+            y_train,
+            epochs=1
+        )
+        
+        # Step 9: Generate predictions
+        predictor = BertPredictor(model=trained_model)
+        predictions = predictor.predict(
+            test_tokens["input_ids"],
+            test_tokens["attention_mask"]
+        )
+        y_pred = predictions["labels"]
+        y_proba = predictions["probabilities"]
+        
+        # Step 10: Evaluate metrics
+        metrics = evaluate_model(y_test, y_pred, y_proba)
+        
+        return {
+            "model": trained_model,
+            "metrics": metrics
+        }
     
-    # Step 9: Generate predictions
-    predictions = predict(model, X_test)
-    y_pred = predictions["predictions"]
-    y_proba = predictions.get("probabilities", None)
-    
-    # Step 10: Evaluate metrics
-    metrics = evaluate_model(y_test, y_pred, y_proba)
-    
-    # Return model and metrics
-    return {
-        "model": model,
-        "metrics": metrics
-    }
+    else:
+        # Default TF-IDF pipeline
+        # Step 6: Fit TF-IDF on train only
+        vectorizer = fit_vectorizer(train_texts)
+        
+        # Step 7: Transform both train and test
+        X_train = transform_texts(vectorizer, train_texts)
+        X_test = transform_texts(vectorizer, test_texts)
+        
+        # Step 8: Train baseline model
+        model = train_model(X_train, y_train, random_state=random_state)
+        
+        # Step 9: Generate predictions
+        predictions = predict(model, X_test)
+        y_pred = predictions["predictions"]
+        y_proba = predictions.get("probabilities", None)
+        
+        # Step 10: Evaluate metrics
+        metrics = evaluate_model(y_test, y_pred, y_proba)
+        
+        # Return model and metrics
+        return {
+            "model": model,
+            "metrics": metrics
+        }
