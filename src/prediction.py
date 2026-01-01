@@ -5,9 +5,11 @@ This module provides a simple wrapper around sklearn-like models to generate
 predictions with a consistent output format.
 """
 import numpy as np
+from typing import Union, Dict, Any
+from scipy.sparse import spmatrix
 
 
-def predict(model, X) -> dict:
+def predict(model: Any, X: Union[np.ndarray, spmatrix]) -> Dict[str, np.ndarray]:
     """
     Generate predictions using a trained model.
     

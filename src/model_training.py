@@ -7,9 +7,15 @@ than maximum performance.
 """
 import numpy as np
 from sklearn.linear_model import LogisticRegression
+from typing import Union
+from scipy.sparse import spmatrix
 
 
-def train_model(X_train, y_train, random_state: int = 42):
+def train_model(
+    X_train: Union[np.ndarray, spmatrix], 
+    y_train: np.ndarray, 
+    random_state: int = 42
+) -> LogisticRegression:
     """
     Train a baseline binary text classifier.
     

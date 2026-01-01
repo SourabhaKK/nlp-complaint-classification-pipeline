@@ -4,6 +4,7 @@ End-to-end pipeline orchestration for complaint classification.
 This module coordinates all components of the ML pipeline in the correct order
 to prevent data leakage and ensure reproducible results.
 """
+from typing import Dict, Any
 from src.data_loader import load_complaint_dataset
 from src.data_validation import validate_complaint_data
 from src.data_splits import validate_labels, split_dataset
@@ -19,7 +20,7 @@ def run_pipeline(
     test_size: float = 0.2,
     random_state: int = 42,
     model_type: str = "tfidf"
-) -> dict:
+) -> Dict[str, Any]:
     """
     Run end-to-end ML pipeline for complaint classification.
     
