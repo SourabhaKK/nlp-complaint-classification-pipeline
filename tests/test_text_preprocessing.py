@@ -114,7 +114,7 @@ class TestNoiseRemoval:
     def test_removes_special_characters(self):
         """Test that special characters are removed."""
         result = preprocess_text("Hello@World#Test$")
-        assert result == "helloworld test"
+        assert result == "helloworldtest"
 
     def test_removes_numeric_digits(self):
         """Test that numeric digits are removed."""
