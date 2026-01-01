@@ -265,7 +265,11 @@ class TestDependencyWiring:
     @patch('src.pipeline.load_complaint_dataset')
     @patch('src.pipeline.validate_complaint_data')
     @patch('src.pipeline.fit_vectorizer')
-    def test_vectorizer_fit_called_once(self, mock_fit_vec, mock_validate, mock_load):
+    @patch('src.pipeline.transform_texts')
+    @patch('src.pipeline.train_model')
+    @patch('src.pipeline.predict')
+    @patch('src.pipeline.evaluate_model')
+    def test_vectorizer_fit_called_once(self, mock_eval, mock_pred, mock_train, mock_transform, mock_fit_vec, mock_validate, mock_load):
         """Test that vectorizer fit is called once (on train data only)."""
         mock_df = pd.DataFrame({
             'complaint_text': ['text ' + str(i) for i in range(10)],
@@ -275,6 +279,10 @@ class TestDependencyWiring:
         mock_validate.return_value = None
         mock_vectorizer = Mock()
         mock_fit_vec.return_value = mock_vectorizer
+        mock_transform.return_value = Mock()  # Mock sparse matrix
+        mock_train.return_value = Mock()  # Mock trained model
+        mock_pred.return_value = {"predictions": [0, 1], "probabilities": [[0.6, 0.4], [0.3, 0.7]]}
+        mock_eval.return_value = {"accuracy": 0.5, "precision": 0.5, "recall": 0.5, "f1": 0.5}
         
         run_pipeline()
         
@@ -284,7 +292,9 @@ class TestDependencyWiring:
     @patch('src.pipeline.load_complaint_dataset')
     @patch('src.pipeline.validate_complaint_data')
     @patch('src.pipeline.train_model')
-    def test_model_training_invoked_once(self, mock_train, mock_validate, mock_load):
+    @patch('src.pipeline.predict')
+    @patch('src.pipeline.evaluate_model')
+    def test_model_training_invoked_once(self, mock_eval, mock_pred, mock_train, mock_validate, mock_load):
         """Test that model training is invoked once."""
         mock_df = pd.DataFrame({
             'complaint_text': ['text ' + str(i) for i in range(10)],
@@ -294,6 +304,8 @@ class TestDependencyWiring:
         mock_validate.return_value = None
         mock_model = Mock()
         mock_train.return_value = mock_model
+        mock_pred.return_value = {"predictions": [0, 1], "probabilities": [[0.6, 0.4], [0.3, 0.7]]}
+        mock_eval.return_value = {"accuracy": 0.5, "precision": 0.5, "recall": 0.5, "f1": 0.5}
         
         run_pipeline()
         
